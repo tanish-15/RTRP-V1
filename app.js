@@ -3,13 +3,7 @@
 // --------------------------------------------------------------
 // PASTE YOUR CONFIG OBJECT HERE FROM WHATSAPP
 const firebaseConfig = {
-  apiKey: "AIzaSyCrkExiZVrRLeUn_RkhK1c9hKGJYgA5nXM",
-  authDomain: "rtrpdb.firebaseapp.com",
-  projectId: "rtrpdb",
-  storageBucket: "rtrpdb.firebasestorage.app",
-  messagingSenderId: "671275743024",
-  appId: "1:671275743024:web:d4380caf6c9f53c33fbaf5",
-  measurementId: "G-XM9M0N83SZ"
+  //YOUR FIREBASE CONFIG HERE
 };
 
 // Initialize
