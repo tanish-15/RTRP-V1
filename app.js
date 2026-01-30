@@ -1,12 +1,7 @@
-// --------------------------------------------------------------
-// 1. CONFIGURATION
-// --------------------------------------------------------------
-// PASTE YOUR CONFIG OBJECT HERE FROM WHATSAPP
 const firebaseConfig = {
   //YOUR FIREBASE CONFIG HERE
 };
 
-// Initialize
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
@@ -14,9 +9,6 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 const provider = new firebase.auth.GoogleAuthProvider();
 
-// --------------------------------------------------------------
-// 2. AUTHENTICATION FLOW
-// --------------------------------------------------------------
 const authBtn = document.getElementById('authBtn');
 const loginView = document.getElementById('loginView');
 const dashboardView = document.getElementById('dashboardView');
@@ -63,9 +55,6 @@ function clearState() {
     document.getElementById('statsDisplay').classList.add('hidden');
 }
 
-// --------------------------------------------------------------
-// 3. LEETCODE API & SCORING FORMULA
-// --------------------------------------------------------------
 document.getElementById('fetchBtn').addEventListener('click', async () => {
     const username = document.getElementById('lcUsername').value;
     if (!username) return alert("Enter a username!");
@@ -85,7 +74,7 @@ document.getElementById('fetchBtn').addEventListener('click', async () => {
         document.getElementById('hardVal').innerText = data.hardSolved;
         document.getElementById('statsDisplay').classList.remove('hidden');
 
-        // THE "FORMULA"
+     
         // Easy=1, Medium=3, Hard=5
         const score = (data.easySolved * 1) + (data.mediumSolved * 3) + (data.hardSolved * 5);
         document.getElementById('totalScore').innerText = score;
@@ -102,9 +91,7 @@ document.getElementById('fetchBtn').addEventListener('click', async () => {
     }
 });
 
-// --------------------------------------------------------------
-// 4. BLIND 75 TABLE & DATABASE PERSISTENCE
-// --------------------------------------------------------------
+
 const tableBody = document.getElementById('questionsTable');
 
 // Render the Static Table
