@@ -1,6 +1,7 @@
 const firebaseConfig = {
-  //YOUR FIREBASE CONFIG HERE
+    //YOUR FIREBASE CONFIG HERE
 };
+
 
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
