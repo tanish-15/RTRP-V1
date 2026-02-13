@@ -6,40 +6,57 @@
     <title>GRIET Placement Prep</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/picnic">
     <style>
-        
-          input[type="checkbox"] { 
-          display: inline-block !important; 
-          position: static !important; 
-          opacity: 1 !important;
-          width: 20px; 
-          height: 20px;
-          cursor: pointer;
+      #companyFilter {
+    width: auto;             
+    min-width: 160px;        
+    padding-right: 30px;     
+    display: inline-block;
+    vertical-align: middle;
+    appearance: auto;        
+    background-color: white;
 }
+
+.filter-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;       
+    gap: 10px;
+}
+        input[type="checkbox"] { 
+            display: inline-block !important; 
+            position: static !important; 
+            opacity: 1 !important;
+            width: 20px; 
+            height: 20px;
+            cursor: pointer;
+        }
         body { padding: 20px; background-color: #f4f4f4; }
         .hidden { display: none !important; }
         .card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .stat-val { font-size: 2.5em; font-weight: bold; color: #0074D9; }
         .score-val { font-size: 3em; font-weight: 800; color: #2ECC40; }
-        .company-tag { background: #FFDC00; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; font-weight: bold; }
+        .company-tag { padding: 2px 6px; border-radius: 4px; font-size: 0.8em; font-weight: bold; color: white; }
         .nav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;}
+        .filter-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
     <div class="nav-header">
-        <h2>Placement Tracker</h2>
+        <h2>🚀 Placement Tracker</h2>
         <button id="authBtn">Login with Google</button>
     </div>
 
     <div id="loginView" style="text-align: center; margin-top: 100px;">
-        <h1>Welcome to RTRP Project</h1>
-        <p>Login to track your LeetCode stats and Blind 75 progress.</p>
+        <h1>Welcome to Placement Tracker - Version 1.0</h1>
+        <p>Login to track your LeetCode stats and Company Specific Progress</p>
     </div>
 
     <div id="dashboardView" class="hidden">
         
         <div class="card">
-            <h3>Live Platform Stats</h3>
+            <h3>📊 Live Platform Stats</h3>
             <div class="flex two" style="align-items: center;">
                 <div>
                     <input type="text" id="lcUsername" placeholder="LeetCode Username (e.g. neal_wu)">
@@ -57,7 +74,7 @@
                 </div>
                 <hr>
                 <div style="text-align: center;">
-                    <small>PLACEMENT READINESS SCORE (Calculated via Weighted Avg)</small>
+                    <small>PLACEMENT READINESS SCORE</small>
                     <div class="score-val" id="totalScore">0</div>
                     <div id="feedbackText">--</div>
                 </div>
@@ -65,14 +82,34 @@
         </div>
 
         <div class="card">
-            <h3>Company Target Sheet (Blind 75)</h3>
+            <h3>📈 Preparation Breakdown</h3>
+            <div style="max-width: 300px; margin: 0 auto;">
+                <canvas id="prepChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="filter-section">
+                <h3>🎯 Company Target Sheet</h3>
+                <select id="companyFilter" style="width: auto;">
+                    <option value="All">All Companies</option>
+                    <option value="Microsoft">Microsoft</option>
+                    <option value="Amazon">Amazon</option>
+                    <option value="TCS">TCS</option>
+                    <option value="Infosys">Infosys</option>
+                    <option value="Wipro">Wipro</option>
+                    <option value="Tech Mahindra">Tech Mahindra</option>
+                    <option value="HCL">HCL</option>
+                    <option value="Blind 75">NeetCode Blind 75</option>
+                </select>
+            </div>
             <p>Check off questions as you complete them.</p>
             <table class="primary">
                 <thead>
                     <tr>
                         <th>Done</th>
                         <th>Problem</th>
-                        <th>Company</th>
+                        <th>Topic</th> <th>Company</th>
                         <th>Link</th>
                     </tr>
                 </thead>
@@ -86,8 +123,11 @@
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <script src="blind75.js"></script>
     <script src="app.js"></script>
+    
 </body>
 </html>
