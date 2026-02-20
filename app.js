@@ -1,49 +1,46 @@
 // --------------------------------------------------------------
 // 1. CONFIGURATION
 // --------------------------------------------------------------
-// PASTE YOUR FIREBASE CONFIG HERE
 const firebaseConfig = {
   //YOUR FIREBASE CONFIG HERE
 };
-let myChart=null;
 
-// Initialize Firebase
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
+let myChart = null;
+let activityChart = null;
+
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 const provider = new firebase.auth.GoogleAuthProvider();
+
+// UI Elements
 const filterDropdown = document.getElementById('companyFilter');
 const tableBody = document.getElementById('questionsTable');
-
-// --------------------------------------------------------------
-// 2. AUTHENTICATION & STATE MANAGEMENT
-// --------------------------------------------------------------
 const authBtn = document.getElementById('authBtn');
 const loginView = document.getElementById('loginView');
 const dashboardView = document.getElementById('dashboardView');
 
+// UI Toggles
+const usernameSection = document.getElementById('usernameSection');
+const welcomeSection = document.getElementById('welcomeSection');
+const displayUser = document.getElementById('displayUser');
+const changeUserBtn = document.getElementById('changeUserBtn');
+const themeToggle = document.getElementById('themeToggle');
+
+// --------------------------------------------------------------
+// 2. AUTHENTICATION & AUTO-FETCH
+// --------------------------------------------------------------
 auth.onAuthStateChanged(user => {
     if (user) {
-        // User just logged IN
-        console.log("User logged in:", user.uid);
-        
-        // 1. Update UI
         authBtn.innerText = "Logout";
         loginView.classList.add('hidden');
         dashboardView.classList.remove('hidden');
-
-        // 2. CLEAR old data (from previous user)
-        resetUI();
-
-        // 3. LOAD saved data (The Persistence!)
-        loadUserProfile(user.uid);
+        
+        document.querySelectorAll('.q-check').forEach(b => b.checked = false);
+        
+        checkAndAutoFetch(user.uid);
         loadUserProgress(user.uid);
-
     } else {
-        // User just logged OUT
-        console.log("User logged out");
         authBtn.innerText = "Login with Google";
         loginView.classList.remove('hidden');
         dashboardView.classList.add('hidden');
@@ -51,221 +48,255 @@ auth.onAuthStateChanged(user => {
     }
 });
 
-authBtn.addEventListener('click', () => {
-    if (auth.currentUser) {
-        auth.signOut();
-    } else {
-        auth.signInWithPopup(provider);
+async function checkAndAutoFetch(uid) {
+    try {
+        const doc = await db.collection('users').doc(uid).get();
+        if (doc.exists && doc.data().leetcode_username) {
+            const username = doc.data().leetcode_username;
+            usernameSection.classList.add('hidden');
+            welcomeSection.classList.remove('hidden');
+            displayUser.innerText = username;
+            fetchLeetCodeData(username);
+        } else {
+            usernameSection.classList.remove('hidden');
+            welcomeSection.classList.add('hidden');
+        }
+    } catch (e) {
+        console.error("Profile check failed:", e);
     }
+}
+
+authBtn.addEventListener('click', () => {
+    auth.currentUser ? auth.signOut() : auth.signInWithPopup(provider);
 });
+
+if(changeUserBtn) {
+    changeUserBtn.addEventListener('click', () => {
+        welcomeSection.classList.add('hidden');
+        usernameSection.classList.remove('hidden');
+    });
+}
+
+// --------------------------------------------------------------
+// 3. CHART RENDERING (THEME AWARE)
+// --------------------------------------------------------------
+function getChartTheme() {
+    const isDark = document.body.classList.contains('dark-mode');
+    return {
+        text: isDark ? '#d7dadc' : '#666',
+        grid: isDark ? '#444' : '#ddd'
+    };
+}
 
 function renderChart(easy, medium, hard) {
     const ctx = document.getElementById('prepChart').getContext('2d');
-
-    if (myChart) {
-        myChart.destroy();
-    }
+    const theme = getChartTheme();
+    
+    if (myChart instanceof Chart) myChart.destroy();
 
     myChart = new Chart(ctx, {
-        type: 'doughnut', // You can also use 'bar' or 'pie'
+        type: 'doughnut',
         data: {
             labels: ['Easy', 'Medium', 'Hard'],
+            datasets: [{ 
+                data: [easy, medium, hard], 
+                backgroundColor: ['#2ECC40', '#FF851B', '#FF4136'] 
+            }]
+        },
+        options: {
+            plugins: {
+                legend: { labels: { color: theme.text } }
+            }
+        }
+    });
+}
+
+function updateActivityGraph(submissionCalendar) {
+    if (!submissionCalendar || Object.keys(submissionCalendar).length === 0) return;
+
+    const theme = getChartTheme();
+    const last7Days = [];
+    const submissionCounts = [];
+    const now = new Date();
+
+    for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(now.getDate() - i);
+        d.setHours(0, 0, 0, 0); 
+        last7Days.push(d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }));
+
+        const dayStart = Math.floor(d.getTime() / 1000);
+        const dayEnd = dayStart + 86400;
+
+        let dayCount = 0;
+        for (const [timestamp, count] of Object.entries(submissionCalendar)) {
+            const ts = parseInt(timestamp);
+            if (ts >= dayStart && ts < dayEnd) dayCount += count;
+        }
+        submissionCounts.push(dayCount);
+    }
+
+    const ctx = document.getElementById('activityChart').getContext('2d');
+    if (activityChart instanceof Chart) activityChart.destroy();
+
+    activityChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: last7Days,
             datasets: [{
-                label: 'Questions Solved',
-                data: [easy, medium, hard],
-                backgroundColor: [
-                    '#2ECC40', // Green for Easy
-                    '#FF851B', // Orange for Medium
-                    '#FF4136'  // Red for Hard
-                ],
-                borderWidth: 1
+                label: 'Submissions',
+                data: submissionCounts,
+                borderColor: '#0074D9',
+                backgroundColor: 'rgba(0, 116, 217, 0.1)',
+                fill: true,
+                tension: 0.4
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: true,
-            plugins: {
-                legend: {
-                    position: 'bottom',
+            maintainAspectRatio: false,
+            plugins: { legend: { labels: { color: theme.text } } },
+            scales: { 
+                y: { 
+                    beginAtZero: true, 
+                    ticks: { color: theme.text, stepSize: 1 },
+                    grid: { color: theme.grid }
+                },
+                x: {
+                    ticks: { color: theme.text },
+                    grid: { color: theme.grid }
                 }
             }
         }
     });
 }
-// Helper: Wipes the screen clean
-function resetUI() {
-    document.getElementById('lcUsername').value = "";
-    document.getElementById('easyVal').innerText = "0";
-    document.getElementById('medVal').innerText = "0";
-    document.getElementById('hardVal').innerText = "0";
-    document.getElementById('totalScore').innerText = "0";
-    document.getElementById('feedbackText').innerText = "--";
-    document.getElementById('statsDisplay').classList.add('hidden');
-    
-    // Uncheck all boxes
-    document.querySelectorAll('.q-check').forEach(box => box.checked = false);
-}
 
 // --------------------------------------------------------------
-// 3. LEETCODE STATS (FETCH + SAVE)
+// 4. DATA FETCHING
 // --------------------------------------------------------------
-document.getElementById('fetchBtn').addEventListener('click', async () => {
-    const username = document.getElementById('lcUsername').value;
-    if (!username) return alert("Enter a username!");
-
+async function fetchLeetCodeData(username) {
     const btn = document.getElementById('fetchBtn');
-    btn.innerText = "Fetching...";
+    const originalText = btn.innerText;
+    btn.innerText = "Syncing...";
 
     try {
-        // 1. Fetch from API
-        const res = await fetch(`https://leetcode-stats-api.herokuapp.com/${username}`);
+        const res = await fetch(`https://leetcode-stats-api.vercel.app/${username}`);
+        if (!res.ok) throw new Error("User not found");
         const data = await res.json();
 
-        if (data.status === 'error') throw new Error("User not found");
-
-        // 2. Update the Screen
         updateStatsUI(data.easySolved, data.mediumSolved, data.hardSolved);
+        if (data.submissionCalendar) updateActivityGraph(data.submissionCalendar);
 
-        // 3. SAVE to Database (Long Term Storage)
+        usernameSection.classList.add('hidden');
+        welcomeSection.classList.remove('hidden');
+        displayUser.innerText = username;
+
         if (auth.currentUser) {
-            const userId = auth.currentUser.uid;
-            db.collection('users').doc(userId).set({
+            db.collection('users').doc(auth.currentUser.uid).set({
                 leetcode_username: username,
-                stats: {
-                    easy: data.easySolved,
-                    medium: data.mediumSolved,
-                    hard: data.hardSolved
-                },
+                stats: data,
                 lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-            }, { merge: true }); // Merge ensures we don't overwrite other fields
-            console.log("Stats saved to DB");
+            }, { merge: true });
         }
-
     } catch (e) {
-        alert(e.message);
+        if (document.activeElement === btn) alert("LeetCode user not found!");
     } finally {
-        btn.innerText = "Fetch Stats";
+        btn.innerText = originalText;
     }
+}
+
+document.getElementById('fetchBtn').addEventListener('click', () => {
+    const username = document.getElementById('lcUsername').value.trim();
+    if (username) fetchLeetCodeData(username);
 });
 
-// Helper: Updates the HTML numbers and Score
 function updateStatsUI(easy, medium, hard) {
     document.getElementById('easyVal').innerText = easy;
     document.getElementById('medVal').innerText = medium;
     document.getElementById('hardVal').innerText = hard;
     document.getElementById('statsDisplay').classList.remove('hidden');
 
-    // The Formula
     const score = (easy * 1) + (medium * 3) + (hard * 5);
     document.getElementById('totalScore').innerText = score;
 
     const fb = document.getElementById('feedbackText');
-    if (score > 400) { fb.innerText = "🔥 Strong Portfolio"; fb.style.color = "green"; }
-    else { fb.innerText = "⚠️ Needs Improvement"; fb.style.color = "orange"; }
+    fb.innerText = score > 400 ? "🔥 Strong Portfolio" : "⚠️ Needs Improvement";
+    fb.style.color = score > 400 ? "green" : "orange";
+    
     renderChart(easy, medium, hard);
 }
 
 // --------------------------------------------------------------
-// 4. CHECKBOXES (SAVE + LOAD)
+// 5. TABLE & PROGRESS
 // --------------------------------------------------------------
-
-// Save Checkbox Click (Delegated to tableBody)
-document.getElementById('questionsTable').addEventListener('change', (e) => {
-    if (e.target.classList.contains('q-check')) {
-        const qId = e.target.getAttribute('data-id');
-        const isChecked = e.target.checked;
-
-        if (auth.currentUser) {
-            const userId = auth.currentUser.uid;
-            db.collection('users').doc(userId).collection('progress').doc(qId).set({
-                done: isChecked
-            }).then(() => {
-                console.log(`Question ${qId} saved: ${isChecked}`);
-            });
-        }
-    }
-});
-
-// --------------------------------------------------------------
-// 5. DATABASE LOADERS & DYNAMIC TABLE
-// --------------------------------------------------------------
-
-// Function A: Load Username & Stats
-function loadUserProfile(uid) {
-    db.collection('users').doc(uid).get().then(doc => {
-        if (doc.exists) {
-            const data = doc.data();
-            if (data.leetcode_username) {
-                document.getElementById('lcUsername').value = data.leetcode_username;
-            }
-            if (data.stats) {
-                updateStatsUI(data.stats.easy, data.stats.medium, data.stats.hard);
-            }
-        }
-    });
-}
-
-// Function B: Load Checkboxes from Firestore
 function loadUserProgress(uid) {
     db.collection('users').doc(uid).collection('progress').get().then(snapshot => {
         snapshot.forEach(doc => {
-            const qId = doc.id;
-            const isDone = doc.data().done;
-            const checkbox = document.querySelector(`.q-check[data-id="${qId}"]`);
-            if (checkbox) {
-                checkbox.checked = isDone;
-            }
+            const checkbox = document.querySelector(`.q-check[data-id="${doc.id}"]`);
+            if (checkbox) checkbox.checked = doc.data().done;
         });
     });
 }
 
-// Function to build the Table dynamically
+document.getElementById('questionsTable').addEventListener('change', (e) => {
+    if (e.target.classList.contains('q-check') && auth.currentUser) {
+        db.collection('users').doc(auth.currentUser.uid).collection('progress').doc(e.target.getAttribute('data-id')).set({
+            done: e.target.checked
+        });
+    }
+});
+
 function renderTable(filter = "All") {
     const tableContainer = document.getElementById('questionsTable');
-    if (!tableContainer) return;
-    
     tableContainer.innerHTML = ""; 
-
-    const dataSource = (typeof practiceData !== 'undefined') ? practiceData : blind75Data;
-
+    const dataSource = (typeof practiceData !== 'undefined') ? practiceData : [];
+    
     dataSource.forEach(q => {
         if (filter === "All" || q.company === filter) {
-            let diffColor;
-            let textColor = (q.difficulty === "Medium") ? "black" : "white";
-            
-            if (q.difficulty === "Easy") diffColor = "#2ECC40";      // Green
-            else if (q.difficulty === "Medium") diffColor = "#FFDC00"; // Yellow
-            else if (q.difficulty === "Hard") diffColor = "#FF4136";   // Red
-            else diffColor = "#AAAAAA";                                
+            let diffBg = q.difficulty === "Easy" ? "#2ECC40" : q.difficulty === "Medium" ? "#FFDC00" : "#FF4136";
+            let diffText = q.difficulty === "Medium" ? "black" : "white";
 
-            const row = `
-                <tr>
-                    <td><input type="checkbox" class="q-check" data-id="${q.id}"></td>
-                    <td>
-                        <strong>${q.title}</strong> 
-                        <span class="company-tag" style="background-color: ${diffColor}; color: ${textColor};">
-                            ${q.difficulty}
-                        </span>
-                    </td>
-                    <td><code style="background: #eee; padding: 2px 5px;">${q.topic || 'General'}</code></td>
-                    <td>${q.company}</td>
-                    <td><a href="${q.url}" target="_blank" class="button">Solve</a></td>
-                </tr>
-            `;
-            tableContainer.innerHTML += row;
+            tableContainer.innerHTML += `<tr>
+                <td><input type="checkbox" class="q-check" data-id="${q.id}"></td>
+                <td><strong>${q.title}</strong> <span class="company-tag" style="background-color: ${diffBg}; color: ${diffText};">${q.difficulty}</span></td>
+                <td><code>${q.topic || 'General'}</code></td>
+                <td>${q.company}</td>
+                <td><a href="${q.url}" target="_blank" class="button">Solve</a></td>
+            </tr>`;
         }
     });
-
     if (auth.currentUser) loadUserProgress(auth.currentUser.uid);
 }
 
 // --------------------------------------------------------------
-// 6. INITIALIZATION & LISTENERS
+// 6. NIGHT MODE & UI HELPERS
 // --------------------------------------------------------------
+if (localStorage.getItem('theme') === 'dark') {
+    document.body.classList.add('dark-mode');
+    themeToggle.innerText = "☀️";
+}
 
-//Listener for the dropdown
-filterDropdown.addEventListener('change', (e) => {
-    renderTable(e.target.value);
+themeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+    const isDark = document.body.classList.contains('dark-mode');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    themeToggle.innerText = isDark ? "☀️" : "🌙";
+
+   
+    const easy = parseInt(document.getElementById('easyVal').innerText) || 0;
+    const medium = parseInt(document.getElementById('medVal').innerText) || 0;
+    const hard = parseInt(document.getElementById('hardVal').innerText) || 0;
+    renderChart(easy, medium, hard);
+    
+    
 });
 
+function resetUI() {
+    const lcInput = document.getElementById('lcUsername');
+    if(lcInput) lcInput.value = "";
+    document.querySelectorAll('.q-check').forEach(b => b.checked = false);
+    document.getElementById('statsDisplay').classList.add('hidden');
+}
+
+filterDropdown.addEventListener('change', (e) => renderTable(e.target.value));
 renderTable();
