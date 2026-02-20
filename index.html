@@ -6,7 +6,6 @@
     <title>GRIET Placement Prep</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/picnic">
     <style>
-        /* --- 1. BASE STYLES --- */
         body { padding: 20px; background-color: #f4f4f4; transition: all 0.3s ease; }
         .hidden { display: none !important; }
         .card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
@@ -14,28 +13,23 @@
         .score-val { font-size: 3em; font-weight: 800; color: #2ECC40; }
         .nav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;}
         
-        /* --- 2. DARK MODE OVERRIDES --- */
         body.dark-mode { background-color: #1a1a1b; color: #d7dadc; }
         .dark-mode .card { background-color: #272729; color: #d7dadc; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
         .dark-mode hr { border-color: #444; }
         .dark-mode table.primary tr:nth-child(even) { background-color: #2d2d30; }
         .dark-mode table.primary thead th { background-color: #333; color: #fff; }
 
-        /* Fix Inputs & Dropdowns in Dark Mode */
         .dark-mode input[type="text"], .dark-mode select {
             background-color: #333 !important;
             color: white !important;
             border: 1px solid #444 !important;
         }
-        /* This fixes the invisible arrow in the dropdown */
         .dark-mode select {
             background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='5' viewBox='0 0 4 5'%3E%3Cpath fill='%23d7dadc' d='M2 0L0 2h4zm0 5L0 3h4z'/%3E%3C/svg%3E") !important;
         }
 
-        /* Dark Mode Checkboxes */
         .dark-mode input[type="checkbox"] { filter: invert(100%) hue-rotate(180deg) brightness(1.2); }
 
-        /* --- 3. COMPONENT STYLES --- */
         #companyFilter { width: auto; min-width: 160px; appearance: auto; }
         .filter-section { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
         
