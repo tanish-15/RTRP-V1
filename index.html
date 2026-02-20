@@ -6,64 +6,82 @@
     <title>GRIET Placement Prep</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/picnic">
     <style>
-      #companyFilter {
-    width: auto;             
-    min-width: 160px;        
-    padding-right: 30px;     
-    display: inline-block;
-    vertical-align: middle;
-    appearance: auto;        
-    background-color: white;
-}
-
-.filter-section {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;       
-    gap: 10px;
-}
-        input[type="checkbox"] { 
-            display: inline-block !important; 
-            position: static !important; 
-            opacity: 1 !important;
-            width: 20px; 
-            height: 20px;
-            cursor: pointer;
-        }
-        body { padding: 20px; background-color: #f4f4f4; }
+        /* --- 1. BASE STYLES --- */
+        body { padding: 20px; background-color: #f4f4f4; transition: all 0.3s ease; }
         .hidden { display: none !important; }
         .card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .stat-val { font-size: 2.5em; font-weight: bold; color: #0074D9; }
         .score-val { font-size: 3em; font-weight: 800; color: #2ECC40; }
-        .company-tag { padding: 2px 6px; border-radius: 4px; font-size: 0.8em; font-weight: bold; color: white; }
         .nav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;}
-        .filter-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        
+        /* --- 2. DARK MODE OVERRIDES --- */
+        body.dark-mode { background-color: #1a1a1b; color: #d7dadc; }
+        .dark-mode .card { background-color: #272729; color: #d7dadc; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .dark-mode hr { border-color: #444; }
+        .dark-mode table.primary tr:nth-child(even) { background-color: #2d2d30; }
+        .dark-mode table.primary thead th { background-color: #333; color: #fff; }
+
+        /* Fix Inputs & Dropdowns in Dark Mode */
+        .dark-mode input[type="text"], .dark-mode select {
+            background-color: #333 !important;
+            color: white !important;
+            border: 1px solid #444 !important;
+        }
+        /* This fixes the invisible arrow in the dropdown */
+        .dark-mode select {
+            background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='5' viewBox='0 0 4 5'%3E%3Cpath fill='%23d7dadc' d='M2 0L0 2h4zm0 5L0 3h4z'/%3E%3C/svg%3E") !important;
+        }
+
+        /* Dark Mode Checkboxes */
+        .dark-mode input[type="checkbox"] { filter: invert(100%) hue-rotate(180deg) brightness(1.2); }
+
+        /* --- 3. COMPONENT STYLES --- */
+        #companyFilter { width: auto; min-width: 160px; appearance: auto; }
+        .filter-section { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+        
+        input[type="checkbox"] { 
+            display: inline-block !important; 
+            position: static !important; 
+            opacity: 1 !important;
+            width: 20px; height: 20px; cursor: pointer;
+        }
+
+        code { padding: 2px 6px; border-radius: 4px; background-color: #e1e1e1; transition: all 0.3s ease; }
+        .dark-mode code { background-color: #3b3b3d !important; color: #00d4ff !important; border: 1px solid #444; }
+        .company-tag { padding: 2px 6px; border-radius: 4px; font-size: 0.8em; font-weight: bold; color: white; }
     </style>
 </head>
 <body>
 
     <div class="nav-header">
         <h2>🚀 Placement Tracker</h2>
-        <button id="authBtn">Login with Google</button>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <button id="themeToggle" class="pseudo" style="font-size: 1.2em; padding: 5px 10px;">🌙</button>
+            <button id="authBtn">Login with Google</button>
+        </div>
     </div>
 
     <div id="loginView" style="text-align: center; margin-top: 100px;">
-        <h1>Welcome to Placement Tracker - Version 1.0</h1>
-        <p>Login to track your LeetCode stats and Company Specific Progress</p>
+        <h1>Welcome to RTRP Project</h1>
+        <p>Login to track your LeetCode stats and Blind 75 progress.</p>
     </div>
 
     <div id="dashboardView" class="hidden">
         
         <div class="card">
-            <h3>📊 Live Platform Stats</h3>
-            <div class="flex two" style="align-items: center;">
-                <div>
-                    <input type="text" id="lcUsername" placeholder="LeetCode Username (e.g. neal_wu)">
+            <h3>📊 Platform Connection</h3>
+            <div id="usernameSection">
+                <p>Link your LeetCode account to start tracking.</p>
+                <div class="flex two" style="align-items: center;">
+                    <div><input type="text" id="lcUsername" placeholder="LeetCode Username"></div>
+                    <div><button id="fetchBtn" class="success">Link & Fetch</button></div>
                 </div>
-                <div>
-                    <button id="fetchBtn" class="success">Fetch Stats</button>
-                </div>
+            </div>
+
+            <div id="welcomeSection" class="hidden" style="text-align: center; padding: 10px;">
+                <h4>Welcome back, <span id="displayUser" style="color: #0074D9;"></span></h4>
+                <p style="font-size: 0.9em; color: #666;">Stats are synced automatically.</p>
+                <button id="changeUserBtn" class="pseudo" style="font-size: 0.7em;">Change Account</button>
             </div>
             
             <div id="statsDisplay" class="hidden" style="margin-top: 20px;">
@@ -81,17 +99,25 @@
             </div>
         </div>
 
-        <div class="card">
-            <h3>📈 Preparation Breakdown</h3>
-            <div style="max-width: 300px; margin: 0 auto;">
-                <canvas id="prepChart"></canvas>
+        <div class="flex two">
+            <div class="card">
+                <h3>📈 Breakdown</h3>
+                <div style="max-width: 250px; margin: 0 auto;">
+                    <canvas id="prepChart"></canvas>
+                </div>
+            </div>
+            <div class="card">
+                <h3>📅 7-Day Activity</h3>
+                <div style="height: 200px;">
+                    <canvas id="activityChart"></canvas>
+                </div>
             </div>
         </div>
 
         <div class="card">
             <div class="filter-section">
-                <h3>🎯 Company Target Sheet</h3>
-                <select id="companyFilter" style="width: auto;">
+                <h3>🎯 Target Sheet</h3>
+                <select id="companyFilter">
                     <option value="All">All Companies</option>
                     <option value="Microsoft">Microsoft</option>
                     <option value="Amazon">Amazon</option>
@@ -100,34 +126,37 @@
                     <option value="Wipro">Wipro</option>
                     <option value="Tech Mahindra">Tech Mahindra</option>
                     <option value="HCL">HCL</option>
-                    <option value="Blind 75">NeetCode Blind 75</option>
+                    <option value="Blind 75">NeetCode Blind</option>
+                    <option value="Netflix">Netflix</option>
+                    <option value="Goldman Sachs">Goldman Sachs</option>
+                    <option value="Adobe">Adobe</option>
+                    <option value="Flipkart">Flipkart</option>
+                    <option value="Razorpay">Razorpay</option>
+                    <option value="Oracle">Oracle</option>
+
                 </select>
             </div>
-            <p>Check off questions as you complete them.</p>
             <table class="primary">
                 <thead>
                     <tr>
                         <th>Done</th>
                         <th>Problem</th>
-                        <th>Topic</th> <th>Company</th>
+                        <th>Topic</th> 
+                        <th>Company</th>
                         <th>Link</th>
                     </tr>
                 </thead>
-                <tbody id="questionsTable">
-                    </tbody>
+                <tbody id="questionsTable"></tbody>
             </table>
         </div>
-
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <script src="blind75.js"></script>
     <script src="app.js"></script>
-    
 </body>
 </html>
