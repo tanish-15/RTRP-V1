@@ -163,4 +163,40 @@ const practiceData = [
 { id: 162, title: "Find Peak Element", difficulty: "Medium", topic: "Binary Search", company: "Blind 75", url: "https://leetcode.com/problems/find-peak-element/" },
 { id: 4, title: "Median of Two Sorted Arrays", difficulty: "Hard", topic: "Binary Search", company: "Blind 75", url: "https://leetcode.com/problems/median-of-two-sorted-arrays/" },
 
+ // Netflix
+    { "id": 295, "title": "Find Median from Data Stream", "difficulty": "Hard", "topic": "Heap", "company": "Netflix", "url": "https://leetcode.com/problems/find-median-from-data-stream/" },
+    { "id": 208, "title": "Implement Trie", "difficulty": "Medium", "topic": "Trie", "company": "Netflix", "url": "https://leetcode.com/problems/implement-trie-prefix-tree/" },
+    { "id": 139, "title": "Word Break", "difficulty": "Medium", "topic": "Dynamic Programming", "company": "Netflix", "url": "https://leetcode.com/problems/word-break/" },
+    { "id": 460, "title": "LFU Cache", "difficulty": "Hard", "topic": "Design", "company": "Netflix", "url": "https://leetcode.com/problems/lfu-cache/" },
+    { "id": 23, "title": "Merge k Sorted Lists", "difficulty": "Hard", "topic": "Linked List", "company": "Netflix", "url": "https://leetcode.com/problems/merge-k-sorted-lists/" },
+    { "id": 42, "title": "Trapping Rain Water", "difficulty": "Hard", "topic": "Two Pointers", "company": "Netflix", "url": "https://leetcode.com/problems/trapping-rain-water/" },
+
+    // Goldman Sachs
+    { "id": 322, "title": "Coin Change", "difficulty": "Medium", "topic": "Dynamic Programming", "company": "Goldman Sachs", "url": "https://leetcode.com/problems/coin-change/" },
+    { "id": 56, "title": "Merge Intervals", "difficulty": "Medium", "topic": "Intervals", "company": "Goldman Sachs", "url": "https://leetcode.com/problems/merge-intervals/" },
+    { "id": 215, "title": "Kth Largest Element in an Array", "difficulty": "Medium", "topic": "Heap", "company": "Goldman Sachs", "url": "https://leetcode.com/problems/kth-largest-element-in-an-array/" },
+    { "id": 239, "title": "Sliding Window Maximum", "difficulty": "Hard", "topic": "Sliding Window", "company": "Goldman Sachs", "url": "https://leetcode.com/problems/sliding-window-maximum/" },
+    { "id": 124, "title": "Binary Tree Maximum Path Sum", "difficulty": "Hard", "topic": "Binary Tree", "company": "Goldman Sachs", "url": "https://leetcode.com/problems/binary-tree-maximum-path-sum/" },
+
+    // Adobe
+    { "id": 146, "title": "LRU Cache", "difficulty": "Medium", "topic": "Design", "company": "Adobe", "url": "https://leetcode.com/problems/lru-cache/" },
+    { "id": 128, "title": "Longest Consecutive Sequence", "difficulty": "Medium", "topic": "Arrays", "company": "Adobe", "url": "https://leetcode.com/problems/longest-consecutive-sequence/" },
+    { "id": 221, "title": "Maximal Square", "difficulty": "Medium", "topic": "Dynamic Programming", "company": "Adobe", "url": "https://leetcode.com/problems/maximal-square/" },
+
+    // Flipkart
+    { "id": 347, "title": "Top K Frequent Elements", "difficulty": "Medium", "topic": "Heap", "company": "Flipkart", "url": "https://leetcode.com/problems/top-k-frequent-elements/" },
+    { "id": 49, "title": "Group Anagrams", "difficulty": "Medium", "topic": "Strings", "company": "Flipkart", "url": "https://leetcode.com/problems/group-anagrams/" },
+    { "id": 208, "title": "Implement Trie", "difficulty": "Medium", "topic": "Trie", "company": "Flipkart", "url": "https://leetcode.com/problems/implement-trie-prefix-tree/" },
+
+    // Razorpay
+    { "id": 981, "title": "Time Based Key-Value Store", "difficulty": "Medium", "topic": "Design", "company": "Razorpay", "url": "https://leetcode.com/problems/time-based-key-value-store/" },
+    { "id": 355, "title": "Design Twitter", "difficulty": "Medium", "topic": "Design", "company": "Razorpay", "url": "https://leetcode.com/problems/design-twitter/" },
+    { "id": 460, "title": "LFU Cache", "difficulty": "Hard", "topic": "Design", "company": "Razorpay", "url": "https://leetcode.com/problems/lfu-cache/" },
+
+    // Oracle
+    { "id": 70, "title": "Climbing Stairs", "difficulty": "Easy", "topic": "Dynamic Programming", "company": "Oracle", "url": "https://leetcode.com/problems/climbing-stairs/" },
+    { "id": 26, "title": "Remove Duplicates from Sorted Array", "difficulty": "Easy", "topic": "Arrays", "company": "Oracle", "url": "https://leetcode.com/problems/remove-duplicates-from-sorted-array/" },
+    { "id": 173, "title": "Binary Search Tree Iterator", "difficulty": "Medium", "topic": "Binary Tree", "company": "Oracle", "url": "https://leetcode.com/problems/binary-search-tree-iterator/" },
+    { "id": 102, "title": "Binary Tree Level Order Traversal", "difficulty": "Medium", "topic": "Binary Tree", "company": "Oracle", "url": "https://leetcode.com/problems/binary-tree-level-order-traversal/" },
+
 ];
